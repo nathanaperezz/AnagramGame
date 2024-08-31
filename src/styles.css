@@ -1,0 +1,39 @@
+#countdown {
+    font-size: 1.5em; /* Large text size */
+    color: #008000; /*  green text */
+    font-weight: bold; /* Bold text */
+    text-align: center; /* Centered text */
+    margin-top: 20px; /* Spacing above */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+#availableLetters {
+    font-size: 2em;
+    color: dimgrey;
+    text-align: center;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30vh; /* Full viewport height for vertical centering */
+}
+
+#userInput {
+    font-size: 1.5em; /* Larger text size */
+    padding: 8px 12px; /* Padding inside the input */
+    border-radius: 6px; /* Rounded corners */
+    border: 2px solid #76c7c0; /* Soft green border */
+    outline: none; /* Remove default outline */
+    width: 250px; /* Width of the input box */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+/* Input focus effect */
+#userInput:focus {
+    border-color: #5bb3a9; /* Slightly darker green border on focus */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Slightly larger shadow on focus */
+}
