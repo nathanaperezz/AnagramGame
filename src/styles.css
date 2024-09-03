@@ -1,14 +1,32 @@
+* {
+    font-family: monospace;
+}
+
+
+
 #countdown {
     font-size: 1.5em; /* Large text size */
     color: #008000; /*  green text */
+    font-family: monospace;
     font-weight: bold; /* Bold text */
     text-align: center; /* Centered text */
     margin-top: 20px; /* Spacing above */
     transition: color 0.3s ease; /* Smooth color transition */
 }
 
+#score, #usedWords {
+    font-size: 1.5em; /* Large text size */
+    color: cornflowerblue; /*  green text */
+    font-family: monospace;
+    font-weight: bold; /* Bold text */
+    text-align: left; /* Centered text */
+    margin-top: 20px; /* Spacing above */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
 #availableLetters {
     font-size: 2em;
+    font-family: monospace;
     color: dimgrey;
     text-align: center;
     transition: color 0.3s ease; /* Smooth color transition */
@@ -25,7 +43,7 @@
     font-size: 1.5em; /* Larger text size */
     padding: 8px 12px; /* Padding inside the input */
     border-radius: 6px; /* Rounded corners */
-    border: 2px solid #76c7c0; /* Soft green border */
+    border: 2px solid lightblue; /* blue border */
     outline: none; /* Remove default outline */
     width: 250px; /* Width of the input box */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
@@ -34,6 +52,6 @@
 
 /* Input focus effect */
 #userInput:focus {
-    border-color: #5bb3a9; /* Slightly darker green border on focus */
+    border-color: cornflowerblue;
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Slightly larger shadow on focus */
 }

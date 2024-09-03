@@ -8,9 +8,36 @@ let dictionary = new Array(70000);
 let usedWords = new Array(1000);
 let score = 0;
 let numWords = 0;
-let letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
+//let letters = ["t", "a", "k", "a", "t", "c", "r", "e"];
+let letters = generateScrambledAnagram('/anagramWords.txt');
 let countdownInterval;
 document.getElementById("availableLetters").textContent = getAvailableLetters(letters);
+
+
+async function generateScrambledAnagram(filePath) {
+    // Fetch the content of the txt file
+    const response = await fetch(filePath);
+    const text = await response.text();
+
+    // Split the content into an array of words
+    const words = text.split(/\r?\n/).filter(word => word.length === 8);
+
+    // Select a random word from the list
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+
+    // Scramble the letters
+    const scrambledLetters = randomWord.split('').sort(() => Math.random() - 0.5);
+
+    return scrambledLetters;
+}
+
+
+// Example usage
+generateScrambledAnagram('path/to/your/words.txt').then(scrambledLetters => {
+    console.log(scrambledLetters); // e.g., ["t", "a", "k", "a", "t", "c", "r", "e"]
+});
+
+
 
 function getAvailableLetters(letters) {
     let availableLetters = "";
@@ -131,21 +158,29 @@ document.getElementById("userInput").addEventListener("keydown", function(event)
         let input = document.getElementById("userInput").value;
         console.log(input);
 
+        let inputBox = document.getElementById('userInput');
 
         if(IsValid(input, letters, dictionary)) {
 
-            let points = input.length
+            inputBox.style.border = '2px solid green';
 
             usedWords[numWords] = input;
             numWords++;
 
+            // scoring logic
+            let length = input.length
+            let points = length * length;
+
             score += points;
 
-            time += points * points;
+            time += length;
             countdownElement.innerHTML = time;
+        } else {
+            //change box color
+            inputBox.style.border = '2px solid red';
         }
 
-        document.getElementById("score").textContent = "Your score: " + score;
+        document.getElementById("score").textContent = "Score: " + score;
         if(numWords)
             document.getElementById("usedWords").textContent = "Your words: " + getUsedWords(usedWords, numWords);
 
