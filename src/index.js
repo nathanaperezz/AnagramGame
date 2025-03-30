@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Game state variables
-    let time = 10;
+    let time = 15;
     let timerStarted = false;
     let gameOver = false;
     let dictionary = [];
@@ -47,16 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset timer display
         if (countdownElement) {
             countdownElement.textContent = time;
-            countdownElement.style.color = '#2c3e50';  // Reset to default color
+            countdownElement.style.color = '#2c3e50';
         }
 
-        // Hide start button and show input
+        // Hide start button and show game elements
         startButton.classList.add('hidden');
         userInput.classList.remove('hidden');
         availableLetters.classList.remove('hidden');
         
         // Show letters
-        availableLetters.textContent = getAvailableLetters(letters);
+        availableLetters.innerHTML = getAvailableLetters(letters);
         
         // Start timer
         countdownInterval = setInterval(updateCountdown, 1000);
@@ -78,27 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (gameOver && document.getElementById("gameOverPopup").style.display === 'flex') {
                 const playAgainBtn = document.getElementById("playAgainBtn");
                 if (playAgainBtn) {
-                    const restartGame = async () => {
-                        // Hide popup
-                        document.getElementById("gameOverPopup").style.display = 'none';
-                        
-                        // Reset game state
-                        time = 10;
-                        timerStarted = false;
-                        gameOver = false;
-                        usedWords = [];
-                        score = 0;
-                        numWords = 0;
-                        
-                        // Update UI immediately
-                        updateUI();
-                        
-                        // Generate new letters
-                        letters = await generateScrambledAnagram('anagramWords.txt');
-                        
-                        // Start game immediately
-                        startGame();
-                    };
                     restartGame();
                 }
             }
@@ -110,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadDictionary() {
         try {
-            const response = await fetch('dictionary.txt');
+            const response = await fetch('../public/dictionary.txt');
             if (!response.ok) {
                 throw new Error(`Failed to load dictionary: ${response.statusText}`);
             }
@@ -127,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function generateScrambledAnagram(filePath) {
         try {
-            const response = await fetch(filePath);
+            const response = await fetch('../public/anagramWords.txt');
             if (!response.ok) {
                 throw new Error(`Failed to load file: ${response.statusText}`);
             }
@@ -176,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getAvailableLetters(letters) {
         if (!letters || letters.length === 0) return "";
-        return letters.join("     ");
+        return letters.map(letter => `<span>${letter}</span>`).join("");
     }
 
     function showMessage(message, isError = false) {
@@ -198,10 +177,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    async function restartGame() {
+        // Hide popup
+        document.getElementById("gameOverPopup").style.display = 'none';
+        
+        // Reset game state
+        time = 15;
+        timerStarted = false;
+        gameOver = false;
+        usedWords = [];
+        score = 0;
+        numWords = 0;
+        
+        // Clear input box
+        userInput.value = '';
+        
+        // Update UI immediately
+        updateUI();
+        
+        // Generate new letters
+        letters = await generateScrambledAnagram('anagramWords.txt');
+        
+        // Start game immediately
+        startGame();
+    }
+
     function handleGameOver() {
         gameOver = true;
         clearInterval(countdownInterval);
-        document.getElementById("userInput").disabled = true;
+        userInput.disabled = true;
         
         // Show game over popup
         const popup = document.getElementById("gameOverPopup");
@@ -227,34 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add play again button handler
             const playAgainBtn = document.getElementById("playAgainBtn");
             if (playAgainBtn) {
-                const restartGame = async () => {
-                    // Hide popup
-                    popup.style.display = 'none';
-                    
-                    // Reset game state
-                    time = 10;
-                    timerStarted = false;
-                    gameOver = false;
-                    usedWords = [];
-                    score = 0;
-                    numWords = 0;
-                    
-                    // Generate new letters
-                    letters = await generateScrambledAnagram('anagramWords.txt');
-                    
-                    // Start game immediately
-                    startGame();
-                };
-
-                // Add click handler
                 playAgainBtn.onclick = restartGame;
-                
-                // Add keydown handler for Enter key
-                playAgainBtn.addEventListener('keydown', function(event) {
-                    if (event.key === 'Enter') {
-                        restartGame();
-                    }
-                });
             }
         }
     }
@@ -268,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (time <= 3) {
                     countdownElement.style.color = '#ff4444';
                 } else {
-                    countdownElement.style.color = '#2c3e50';  // Change back to dark gray
+                    countdownElement.style.color = '#2c3e50';
                 }
             }
         } else {
@@ -312,40 +289,56 @@ document.addEventListener('DOMContentLoaded', function() {
     function IsValid(word, letters, dictionary) {
         if (!word || word.trim().length === 0) return false;
         if (!dictionary || dictionary.length === 0) return false;
-        if (usedWords.includes(word)) return false;
+        if (usedWords.includes(word)) {
+            showMessage("You've already used this word!", true);
+            return false;
+        }
         if (!IsAnagram(word, letters)) return false;
         if (!IsWordInArray(dictionary, word, 0, dictionary.length - 1)) return false;
         return true;
     }
 
     // Event Listeners
-    document.getElementById("userInput").addEventListener("keydown", async function(event) {
+    userInput.addEventListener('input', function(event) {
+        const input = event.target.value.toLowerCase();
+        const letterSpans = document.querySelectorAll('#availableLetters span');
+        
+        // Reset all letters to unused state
+        letterSpans.forEach(span => {
+            span.classList.remove('used');
+        });
+        
+        // Mark used letters
+        for (let char of input) {
+            for (let span of letterSpans) {
+                if (span.textContent === char && !span.classList.contains('used')) {
+                    span.classList.add('used');
+                    break;
+                }
+            }
+        }
+    });
+
+    userInput.addEventListener('keydown', async function(event) {
         if (event.key === "Enter") {
             if (!isDictionaryLoaded) {
                 alert("Please wait for the dictionary to load.");
                 return;
             }
 
-            if (!timerStarted) {
-                countdownInterval = setInterval(updateCountdown, 1000);
-                timerStarted = true;
-            }
-
-            let input = document.getElementById("userInput").value.trim().toLowerCase();
-            let inputBox = document.getElementById('userInput');
-
+            let input = userInput.value.trim().toLowerCase();
             if (input === "") {
-                inputBox.style.border = '2px solid red';
-                inputBox.classList.add('shake');
+                userInput.style.border = '2px solid red';
+                userInput.classList.add('shake');
                 setTimeout(() => {
-                    inputBox.style.border = '1px solid #ccc';
-                    inputBox.classList.remove('shake');
+                    userInput.style.border = '1px solid #ccc';
+                    userInput.classList.remove('shake');
                 }, 1000);
                 return;
             }
 
             if (IsValid(input, letters, dictionary)) {
-                inputBox.style.border = '2px solid green';
+                userInput.style.border = '2px solid green';
                 usedWords.push(input);
                 numWords++;
 
@@ -356,38 +349,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 time += length;
                 updateUI();
 
-                // Show time bonus message and change timer color
-                const timeBonusElement = document.getElementById("timeBonus");
-                if (timeBonusElement) {
-                    timeBonusElement.textContent = `+${length}s`;
-                    timeBonusElement.style.opacity = '1';
-                    timeBonusElement.style.display = 'block';
-                    
-                    // Add green color to timer
-                    if (countdownElement) {
-                        countdownElement.classList.add('time-added');
-                        setTimeout(() => {
-                            countdownElement.classList.remove('time-added');
-                        }, 1000);
-                    }
-                    
+                // Make timer green when time is added
+                if (countdownElement) {
+                    countdownElement.style.color = '#008000';
                     setTimeout(() => {
-                        timeBonusElement.style.opacity = '0';
-                        setTimeout(() => {
-                            timeBonusElement.style.display = 'none';
-                        }, 200);
+                        countdownElement.style.color = '#2c3e50';
                     }, 1000);
                 }
             } else {
-                inputBox.style.border = '2px solid red';
-                inputBox.classList.add('shake');
+                userInput.style.border = '2px solid red';
+                userInput.classList.add('shake');
                 setTimeout(() => {
-                    inputBox.style.border = '1px solid #ccc';
-                    inputBox.classList.remove('shake');
+                    userInput.style.border = '1px solid #ccc';
+                    userInput.classList.remove('shake');
                 }, 1000);
             }
 
-            document.getElementById("userInput").value = '';
+            // Reset all letter boxes to unused state
+            const letterSpans = document.querySelectorAll('#availableLetters span');
+            letterSpans.forEach(span => {
+                span.classList.remove('used');
+            });
+
+            userInput.value = '';
         }
     });
 
