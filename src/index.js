@@ -1,233 +1,396 @@
 //Nathan Perez
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Game state variables
+    let time = 10;
+    let timerStarted = false;
+    let gameOver = false;
+    let dictionary = [];
+    let usedWords = [];
+    let score = 0;
+    let numWords = 0;
+    let countdownInterval;
+    let letters = [];
+    let isDictionaryLoaded = false;
 
-let time = 10;
-let timerStarted = false;
-let gameOver = false;
-let dictionary = new Array(70000);
-let usedWords = new Array(1000);
-let score = 0;
-let numWords = 0;
-//let letters = ["t", "a", "k", "a", "t", "c", "r", "e"];
-let letters = generateScrambledAnagram('/anagramWords.txt');
-let countdownInterval;
-document.getElementById("availableLetters").textContent = getAvailableLetters(letters);
+    // Get DOM elements
+    const countdownElement = document.getElementById('countdown');
+    const startButton = document.getElementById('startButton');
+    const userInput = document.getElementById('userInput');
+    const availableLetters = document.getElementById('availableLetters');
 
-
-async function generateScrambledAnagram(filePath) {
-    // Fetch the content of the txt file
-    const response = await fetch(filePath);
-    const text = await response.text();
-
-    // Split the content into an array of words
-    const words = text.split(/\r?\n/).filter(word => word.length === 8);
-
-    // Select a random word from the list
-    const randomWord = words[Math.floor(Math.random() * words.length)];
-
-    // Scramble the letters
-    const scrambledLetters = randomWord.split('').sort(() => Math.random() - 0.5);
-
-    return scrambledLetters;
-}
-
-
-// Example usage
-generateScrambledAnagram('path/to/your/words.txt').then(scrambledLetters => {
-    console.log(scrambledLetters); // e.g., ["t", "a", "k", "a", "t", "c", "r", "e"]
-});
-
-
-
-function getAvailableLetters(letters) {
-    let availableLetters = "";
-    let spacing = "     ";
-
-    for (let i = 0; i < letters.length; i++) {
-        availableLetters = availableLetters.concat(letters[i]);
-        availableLetters = availableLetters.concat(spacing);
-    }
-    return availableLetters;
-}
-
-function getUsedWords(usedWords, numWords) {
-
-    const spacing = ", ";
-
-    let wordList = usedWords[0];
-
-    for (let i = 1; i < numWords; i++) {
-        wordList = wordList.concat(spacing);
-        wordList = wordList.concat(usedWords[i]);
+    if (!countdownElement) {
+        console.error('Countdown element not found!');
     }
 
-    return wordList;
-}
+    // Initialize the game
+    async function initializeGame() {
+        try {
+            // Load dictionary first
+            await loadDictionary();
+            
+            // Generate letters only after dictionary is loaded
+            letters = await generateScrambledAnagram('anagramWords.txt');
+            
+            // Enable start button
+            startButton.disabled = false;
+            
+            console.log("Game initialized successfully");
+        } catch (error) {
+            console.error("Failed to initialize game:", error);
+            alert("Failed to initialize game. Please refresh the page.");
+        }
+    }
 
-// IsAnagram returns true if word is valid anagram of letters
-function IsAnagram(word, letters) {
+    // Start game function
+    function startGame() {
+        // Reset timer display
+        if (countdownElement) {
+            countdownElement.textContent = time;
+            countdownElement.style.color = '#2c3e50';  // Reset to default color
+        }
 
-    let tempLetters = [...letters];
+        // Hide start button and show input
+        startButton.classList.add('hidden');
+        userInput.classList.remove('hidden');
+        availableLetters.classList.remove('hidden');
+        
+        // Show letters
+        availableLetters.textContent = getAvailableLetters(letters);
+        
+        // Start timer
+        countdownInterval = setInterval(updateCountdown, 1000);
+        timerStarted = true;
+        
+        // Enable input field
+        userInput.disabled = false;
+        userInput.focus();
+    }
 
-    let j = 0;
-    for (let i = 0, l = word.length; i < l; i++) {
-        for (j = 0; j < tempLetters.length; j++) {
-            if(word[i] === tempLetters[j]) {
-                tempLetters[j] = "0";
-                break;
+    // Add global keyboard event listener for Enter key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            // If game hasn't started and start button is visible
+            if (!timerStarted && !startButton.classList.contains('hidden')) {
+                startGame();
+            }
+            // If game is over and popup is visible
+            else if (gameOver && document.getElementById("gameOverPopup").style.display === 'flex') {
+                const playAgainBtn = document.getElementById("playAgainBtn");
+                if (playAgainBtn) {
+                    const restartGame = async () => {
+                        // Hide popup
+                        document.getElementById("gameOverPopup").style.display = 'none';
+                        
+                        // Reset game state
+                        time = 10;
+                        timerStarted = false;
+                        gameOver = false;
+                        usedWords = [];
+                        score = 0;
+                        numWords = 0;
+                        
+                        // Update UI immediately
+                        updateUI();
+                        
+                        // Generate new letters
+                        letters = await generateScrambledAnagram('anagramWords.txt');
+                        
+                        // Start game immediately
+                        startGame();
+                    };
+                    restartGame();
+                }
             }
         }
-        if(j === tempLetters.length) {
-            console.log("failed");
-            return false
+    });
+
+    // Add start button click handler
+    startButton.addEventListener('click', startGame);
+
+    async function loadDictionary() {
+        try {
+            const response = await fetch('dictionary.txt');
+            if (!response.ok) {
+                throw new Error(`Failed to load dictionary: ${response.statusText}`);
+            }
+            const data = await response.text();
+            dictionary = data.split("\n").filter(word => word.trim().length > 0);
+            dictionary.sort(); // Ensure dictionary is sorted for binary search
+            isDictionaryLoaded = true;
+            console.log("Dictionary loaded successfully with", dictionary.length, "words");
+        } catch (error) {
+            console.error('Error loading dictionary:', error);
+            throw error;
         }
-
     }
 
-    console.log("passed");
-    return true;
-}
+    async function generateScrambledAnagram(filePath) {
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+                throw new Error(`Failed to load file: ${response.statusText}`);
+            }
 
+            const text = await response.text();
+            if (!text.trim()) {
+                throw new Error("File is empty");
+            }
 
-// IsWord returns true if word is in dictionary. Uses binary search
-function IsWordInArray(arr, target, left, right) {
-    if (left > right) return false;
+            // Split the content into an array of words and filter for valid 8-letter words
+            const words = text.split(/\r?\n/)
+                .map(word => word.trim().toLowerCase())
+                .filter(word => word.length === 8 && /^[a-z]+$/.test(word));
 
-    let mid = Math.floor((left + right) / 2);
-    console.log("mid = ", mid);
+            if (words.length === 0) {
+                throw new Error("No valid 8-letter words found in the file");
+            }
 
-    let compare = arr[mid].localeCompare(target)
-    console.log("comparing " + arr[mid] + " and " + target);
+            // Select a random word from the list
+            const randomWord = words[Math.floor(Math.random() * words.length)];
+            if (!randomWord) {
+                throw new Error("Failed to select a random word");
+            }
 
-    if (compare === 0) return true;
+            // Scramble the letters using Fisher-Yates shuffle
+            function shuffle(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
 
-    else if (compare === 1) {
-        console.log("searching left")
-        return IsWordInArray(arr, target, left, mid - 1);
-    }
-    else {
-        console.log("searching right");
-        return IsWordInArray(arr, target, mid + 1, right);
-    }
-}
+            const scrambledLetters = shuffle(randomWord.split(''));
+            console.log("Selected word:", randomWord);
+            console.log("Scrambled letters:", scrambledLetters);
 
-
-//returns true if word is an unused real word anagram
-function IsValid(word, letters, dictionary) {
-    //check if word has already been used
-    if(IsWordInArray(usedWords, word, 0, numWords - 1))
-        return false;
-
-    //check if word is a valid anagram using set letters
-    if(!IsAnagram(word, letters))
-        return false;
-
-    //check if word is in dictionary
-    if(!IsWordInArray(dictionary, word, 0, dictionary.length - 1))
-        return false;
-
-    console.log("word is valid");
-    return true;
-}
-
-
-
-// Fetch the dictionary.txt file
-fetch('dictionary.txt')
-    .then(response => response.text())
-    .then(data => {
-        dictionary = data.split("\n");
-        console.log("dictionary added");
-    })
-    .catch(error => console.error('Error fetching the file:', error));
-
-
-
-
-// Add an event listener to the input element
-document.getElementById("userInput").addEventListener("keydown", function(event) {
-    // Check if the pressed key is "Enter"
-    if (event.key === "Enter") {
-
-        if(!timerStarted) {
-            countdownInterval = setInterval(updateCountdown, 1000);
-            timerStarted = true;
+            return scrambledLetters;
+        } catch (error) {
+            console.error("Error in generateScrambledAnagram:", error);
+            // Provide a fallback set of letters if the file loading fails
+            return ["c", "t", "o", "l", "f", "i", "n", "c"];
         }
+    }
 
+    function getAvailableLetters(letters) {
+        if (!letters || letters.length === 0) return "";
+        return letters.join("     ");
+    }
 
-        let input = document.getElementById("userInput").value;
-        console.log(input);
-
-        let inputBox = document.getElementById('userInput');
-
-        if(IsValid(input, letters, dictionary)) {
-
-            inputBox.style.border = '2px solid green';
-
-            usedWords[numWords] = input;
-            numWords++;
-
-            // scoring logic
-            let length = input.length
-            let points = length * length;
-
-            score += points;
-
-            time += length;
-            countdownElement.innerHTML = time;
-        } else {
-            //change box color
-            inputBox.style.border = '2px solid red';
+    function showMessage(message, isError = false) {
+        const messageElement = document.getElementById("message");
+        if (messageElement) {
+            messageElement.textContent = message;
+            messageElement.style.color = isError ? '#ff4444' : '#008000';
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 3000);
         }
-
-        document.getElementById("score").textContent = "Score: " + score;
-        if(numWords)
-            document.getElementById("usedWords").textContent = "Your words: " + getUsedWords(usedWords, numWords);
-
-        // Clear the input field after submission
-        document.getElementById("userInput").value = '';
-    }
-});
-
-
-
-// Get the countdown element from the DOM
-let countdownElement = document.getElementById('countdown');
-
-// Function to update the countdown
-function updateCountdown() {
-
-    countdownElement.innerHTML = time;
-
-    time--;
-
-    if (time <= 3) {
-        countdownElement.style.color = '#ff4444'; // Red text
-    } else {
-        countdownElement.style.color = '#008000'; //  green text
     }
 
+    function updateUI() {
+        document.getElementById("score").textContent = `Score: ${score}`;
+        if (countdownElement) {
+            countdownElement.textContent = time;
+        }
+    }
 
-    // If countdown reaches zero, stop the timer
-    if (time < 0) {
-        clearInterval(countdownInterval);
-        countdownElement.innerHTML = "Time's up!";
+    function handleGameOver() {
         gameOver = true;
+        clearInterval(countdownInterval);
+        document.getElementById("userInput").disabled = true;
+        
+        // Show game over popup
+        const popup = document.getElementById("gameOverPopup");
+        const finalScore = document.getElementById("finalScore");
+        const finalWords = document.getElementById("finalWords");
+        const finalWordsList = document.getElementById("finalWordsList");
+        
+        if (popup && finalScore && finalWords && finalWordsList) {
+            finalScore.textContent = score;
+            finalWords.textContent = numWords;
+            
+            // Clear and populate words list
+            finalWordsList.innerHTML = '';
+            usedWords.forEach(word => {
+                const li = document.createElement('li');
+                li.textContent = word;
+                finalWordsList.appendChild(li);
+            });
+            
+            // Show popup
+            popup.style.display = 'flex';
+            
+            // Add play again button handler
+            const playAgainBtn = document.getElementById("playAgainBtn");
+            if (playAgainBtn) {
+                const restartGame = async () => {
+                    // Hide popup
+                    popup.style.display = 'none';
+                    
+                    // Reset game state
+                    time = 10;
+                    timerStarted = false;
+                    gameOver = false;
+                    usedWords = [];
+                    score = 0;
+                    numWords = 0;
+                    
+                    // Generate new letters
+                    letters = await generateScrambledAnagram('anagramWords.txt');
+                    
+                    // Start game immediately
+                    startGame();
+                };
 
-        let userInput = document.getElementById('userInput');
-        userInput.style.display = 'none';
-
-        if(numWords === 0) {
-            document.getElementById("endScore").value = "Womp womp. You didn't even get 1.";
+                // Add click handler
+                playAgainBtn.onclick = restartGame;
+                
+                // Add keydown handler for Enter key
+                playAgainBtn.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        restartGame();
+                    }
+                });
+            }
         }
-        else if(numwords === 1) {
-            document.getElementById("endScore").value = "You got 1 word and a score of " + score + ". Better luck next time.";
+    }
+
+    function updateCountdown() {
+        if (time > 0) {
+            time--;
+            if (countdownElement) {
+                countdownElement.textContent = time;
+                // Change color to red when time is low (3 seconds or less)
+                if (time <= 3) {
+                    countdownElement.style.color = '#ff4444';
+                } else {
+                    countdownElement.style.color = '#2c3e50';  // Change back to dark gray
+                }
+            }
+        } else {
+            handleGameOver();
+        }
+    }
+
+    function IsAnagram(word, letters) {
+        if (word.length > letters.length) return false;
+        
+        const letterCount = new Map();
+        for (const letter of letters) {
+            letterCount.set(letter, (letterCount.get(letter) || 0) + 1);
+        }
+        
+        for (const letter of word) {
+            const count = letterCount.get(letter);
+            if (!count) return false;
+            letterCount.set(letter, count - 1);
+        }
+        
+        return true;
+    }
+
+    function IsWordInArray(arr, target, left, right) {
+        if (!arr || arr.length === 0) return false;
+        if (left > right) return false;
+
+        let mid = Math.floor((left + right) / 2);
+        let compare = arr[mid].localeCompare(target);
+
+        if (compare === 0) return true;
+        else if (compare > 0) {
+            return IsWordInArray(arr, target, left, mid - 1);
         }
         else {
-            document.getElementById("endScore").value = "Good job! You got " + numWords + " words and a score of " + score + "!";
+            return IsWordInArray(arr, target, mid + 1, right);
         }
     }
-}
 
+    function IsValid(word, letters, dictionary) {
+        if (!word || word.trim().length === 0) return false;
+        if (!dictionary || dictionary.length === 0) return false;
+        if (usedWords.includes(word)) return false;
+        if (!IsAnagram(word, letters)) return false;
+        if (!IsWordInArray(dictionary, word, 0, dictionary.length - 1)) return false;
+        return true;
+    }
 
+    // Event Listeners
+    document.getElementById("userInput").addEventListener("keydown", async function(event) {
+        if (event.key === "Enter") {
+            if (!isDictionaryLoaded) {
+                alert("Please wait for the dictionary to load.");
+                return;
+            }
 
+            if (!timerStarted) {
+                countdownInterval = setInterval(updateCountdown, 1000);
+                timerStarted = true;
+            }
+
+            let input = document.getElementById("userInput").value.trim().toLowerCase();
+            let inputBox = document.getElementById('userInput');
+
+            if (input === "") {
+                inputBox.style.border = '2px solid red';
+                inputBox.classList.add('shake');
+                setTimeout(() => {
+                    inputBox.style.border = '1px solid #ccc';
+                    inputBox.classList.remove('shake');
+                }, 1000);
+                return;
+            }
+
+            if (IsValid(input, letters, dictionary)) {
+                inputBox.style.border = '2px solid green';
+                usedWords.push(input);
+                numWords++;
+
+                // scoring logic
+                let length = input.length;
+                let points = length * length;
+                score += points;
+                time += length;
+                updateUI();
+
+                // Show time bonus message and change timer color
+                const timeBonusElement = document.getElementById("timeBonus");
+                if (timeBonusElement) {
+                    timeBonusElement.textContent = `+${length}s`;
+                    timeBonusElement.style.opacity = '1';
+                    timeBonusElement.style.display = 'block';
+                    
+                    // Add green color to timer
+                    if (countdownElement) {
+                        countdownElement.classList.add('time-added');
+                        setTimeout(() => {
+                            countdownElement.classList.remove('time-added');
+                        }, 1000);
+                    }
+                    
+                    setTimeout(() => {
+                        timeBonusElement.style.opacity = '0';
+                        setTimeout(() => {
+                            timeBonusElement.style.display = 'none';
+                        }, 200);
+                    }, 1000);
+                }
+            } else {
+                inputBox.style.border = '2px solid red';
+                inputBox.classList.add('shake');
+                setTimeout(() => {
+                    inputBox.style.border = '1px solid #ccc';
+                    inputBox.classList.remove('shake');
+                }, 1000);
+            }
+
+            document.getElementById("userInput").value = '';
+        }
+    });
+
+    // Initialize the game
+    initializeGame();
+}); 

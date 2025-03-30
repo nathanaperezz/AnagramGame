@@ -2,29 +2,59 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="../src/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
-    <title>Anagram Game</title>
+    <title>Letter Chase</title>
 </head>
 <body>
-    <h1>Anagram Game</h1>
+    <h1 class="game-title">Letter Chase</h1>
 
-    <p id="instructions">Use the scrambled letters to form words to gain points before the timer runs out.
-        Correct words add time to the clock. The longer the word the longer the extra time. Good luck! </p>
-
-    <div id="score">Score: 0</div>
-    <div id="countdown">10</div>
-
-    <h3 id="availableLetters"></h3>
-
-
-    <div class="container">
-
-        <input type="text" id="userInput" placeholder="enter word...">
+    <div class="score-container">
+        <div id="score">Score: 0</div>
+        <div class="how-to-play-container">
+            <button class="how-to-play-btn">How to Play</button>
+            <div class="tooltip">
+                <h3>Game Rules:</h3>
+                <ul>
+                    <li>Use the scrambled letters to form valid words</li>
+                    <li>Each word's points = length × length (e.g., "cat" = 9 points)</li>
+                    <li>Each word adds time equal to its length (e.g., "cat" = +3 seconds)</li>
+                    <li>Words must be in the dictionary</li>
+                    <li>Each word can only be used once</li>
+                    <li>Game ends when timer reaches zero</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-    <p id="usedWords"></p>
+    <div id="countdown">10</div>
+
+    <h3 id="availableLetters" class="hidden">Letters</h3>
+
+    <div class="container">
+        <div id="timeBonus" class="time-bonus"></div>
+        <button id="startButton" class="start-button">Start Game (Press Enter)</button>
+        <input type="text" id="userInput" class="hidden" placeholder="enter word...">
+    </div>
+
+    <div id="message" class="message"></div>
+    <div id="gameControls" class="game-controls"></div>
 
     <p id="endScore"></p>
+
+    <!-- Game Over Popup -->
+    <div id="gameOverPopup" class="popup">
+        <div class="popup-content">
+            <h2>Game Over!</h2>
+            <div class="final-score">Final Score: <span id="finalScore">0</span></div>
+            <div class="words-found">Words Found: <span id="finalWords">0</span></div>
+            <div class="words-list">
+                <h3>Your Words:</h3>
+                <ul id="finalWordsList"></ul>
+            </div>
+            <button id="playAgainBtn" class="play-again-btn">Play Again (Press Enter)</button>
+        </div>
+    </div>
 
     <!-- Link to the external JavaScript file -->
     <script src="../src/index.js"></script>
