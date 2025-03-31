@@ -93,15 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                 ? '' 
                 : '/AnagramGame';
-            console.log('Attempting to load dictionary from:', `${baseUrl}/data/dictionary.txt`);
-            const response = await fetch(`${baseUrl}/data/dictionary.txt`);
+            console.log('Attempting to load dictionary from:', `${baseUrl}/data/enable.txt`);
+            const response = await fetch(`${baseUrl}/data/enable.txt`);
             if (!response.ok) {
                 console.error('Dictionary fetch failed:', response.status, response.statusText);
                 throw new Error(`Failed to load dictionary: ${response.statusText}`);
             }
             const data = await response.text();
             dictionary = data.split("\n").filter(word => word.trim().length > 0);
-            dictionary.sort(); // Ensure dictionary is sorted for binary search
             isDictionaryLoaded = true;
             console.log("Dictionary loaded successfully with", dictionary.length, "words");
         } catch (error) {
