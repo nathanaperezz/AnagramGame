@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="../src/styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Letter Chase</title>
@@ -45,6 +45,7 @@
     <div id="gameOverPopup" class="popup">
         <div class="popup-content">
             <h2>Game Over!</h2>
+            <div class="unscrambled-word">Original Word: <span id="unscrambledWord"></span></div>
             <div class="final-score">Final Score: <span id="finalScore">0</span></div>
             <div class="words-found">Words Found: <span id="finalWords">0</span></div>
             <div class="words-list">
@@ -56,6 +57,6 @@
     </div>
 
     <!-- Link to the external JavaScript file -->
-    <script src="../src/index.js"></script>
+    <script src="scripts/index.js"></script>
 </body>
 </html>

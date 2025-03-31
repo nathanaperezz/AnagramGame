@@ -290,6 +290,13 @@ button:active {
     margin-bottom: 1rem;
 }
 
+.unscrambled-word {
+    font-size: 1.5em;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
 .words-list {
     margin: 1.5rem 0;
     text-align: left;

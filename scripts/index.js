@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let countdownInterval;
     let letters = [];
     let isDictionaryLoaded = false;
+    let originalWord = '';
 
     // Get DOM elements
     const countdownElement = document.getElementById('countdown');
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadDictionary() {
         try {
-            const response = await fetch('../public/dictionary.txt');
+            const response = await fetch('./data/dictionary.txt');
             if (!response.ok) {
                 throw new Error(`Failed to load dictionary: ${response.statusText}`);
             }
@@ -106,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function generateScrambledAnagram(filePath) {
         try {
-            const response = await fetch('../public/anagramWords.txt');
+            const response = await fetch('./data/anagramWords.txt');
             if (!response.ok) {
                 throw new Error(`Failed to load file: ${response.statusText}`);
             }
@@ -131,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error("Failed to select a random word");
             }
 
+            originalWord = randomWord;
             // Scramble the letters using Fisher-Yates shuffle
             function shuffle(array) {
                 const shuffled = [...array];
@@ -216,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (popup && finalScore && finalWords && finalWordsList) {
             finalScore.textContent = score;
             finalWords.textContent = numWords;
+            document.getElementById("unscrambledWord").textContent = originalWord;
             
             // Clear and populate words list
             finalWordsList.innerHTML = '';
