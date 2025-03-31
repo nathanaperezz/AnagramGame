@@ -5,6 +5,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Letter Chase</title>
+    <script>
+        // Set base URL based on environment
+        window.baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? '' 
+            : '/AnagramGame';
+            
+        // Update paths after baseUrl is set
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update CSS path
+            const cssLink = document.querySelector('link[href="styles/styles.css"]');
+            if (cssLink) {
+                cssLink.href = `${window.baseUrl}/styles/styles.css`;
+            }
+            
+            // Update JS path
+            const jsScript = document.querySelector('script[src="scripts/index.js"]');
+            if (jsScript) {
+                jsScript.src = `${window.baseUrl}/scripts/index.js`;
+            }
+        });
+    </script>
 </head>
 <body>
     <h1 class="game-title">Letter Chase</h1>
