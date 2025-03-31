@@ -90,8 +90,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadDictionary() {
         try {
+            console.log('Attempting to load dictionary from:', `${window.baseUrl}/data/dictionary.txt`);
             const response = await fetch(`${window.baseUrl}/data/dictionary.txt`);
             if (!response.ok) {
+                console.error('Dictionary fetch failed:', response.status, response.statusText);
                 throw new Error(`Failed to load dictionary: ${response.statusText}`);
             }
             const data = await response.text();
@@ -107,8 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function generateScrambledAnagram(filePath) {
         try {
+            console.log('Attempting to load anagram words from:', `${window.baseUrl}/data/anagramWords.txt`);
             const response = await fetch(`${window.baseUrl}/data/anagramWords.txt`);
             if (!response.ok) {
+                console.error('Anagram words fetch failed:', response.status, response.statusText);
                 throw new Error(`Failed to load file: ${response.statusText}`);
             }
 
