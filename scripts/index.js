@@ -90,8 +90,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadDictionary() {
         try {
-            console.log('Attempting to load dictionary from:', `${window.baseUrl}/data/dictionary.txt`);
-            const response = await fetch(`${window.baseUrl}/data/dictionary.txt`);
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? '' 
+                : '/AnagramGame';
+            console.log('Attempting to load dictionary from:', `${baseUrl}/data/dictionary.txt`);
+            const response = await fetch(`${baseUrl}/data/dictionary.txt`);
             if (!response.ok) {
                 console.error('Dictionary fetch failed:', response.status, response.statusText);
                 throw new Error(`Failed to load dictionary: ${response.statusText}`);
@@ -109,8 +112,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function generateScrambledAnagram(filePath) {
         try {
-            console.log('Attempting to load anagram words from:', `${window.baseUrl}/data/anagramWords.txt`);
-            const response = await fetch(`${window.baseUrl}/data/anagramWords.txt`);
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? '' 
+                : '/AnagramGame';
+            console.log('Attempting to load anagram words from:', `${baseUrl}/data/anagramWords.txt`);
+            const response = await fetch(`${baseUrl}/data/anagramWords.txt`);
             if (!response.ok) {
                 console.error('Anagram words fetch failed:', response.status, response.statusText);
                 throw new Error(`Failed to load file: ${response.statusText}`);
