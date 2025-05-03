@@ -229,9 +229,17 @@ document.addEventListener('DOMContentLoaded', function() {
             finalWords.textContent = numWords;
             document.getElementById("unscrambledWord").textContent = originalWord;
             
+            // Sort words by length (descending) and then alphabetically
+            const sortedWords = [...usedWords].sort((a, b) => {
+                if (b.length !== a.length) {
+                    return b.length - a.length; // Sort by length descending
+                }
+                return a.localeCompare(b); // Sort alphabetically for same length
+            });
+            
             // Clear and populate words list
             finalWordsList.innerHTML = '';
-            usedWords.forEach(word => {
+            sortedWords.forEach(word => {
                 const li = document.createElement('li');
                 li.textContent = word;
                 finalWordsList.appendChild(li);
