@@ -1,7 +1,72 @@
-<img width="1512" alt="Screenshot 2025-04-13 at 11 36 11 AM" src="https://github.com/user-attachments/assets/b8611028-b988-4e37-a057-8f69fa835f6a" />
-<img width="1512" alt="Screenshot 2025-04-13 at 11 44 37 AM" src="https://github.com/user-attachments/assets/0630046f-eda3-4279-9c84-e27fb038c58f" />
-The game begins with a start screen where the letters are hidden. Users can view instructions, then start the game by clicking start or with the enter key for a hands on keyboard experience. 
-<img width="1512" alt="Screenshot 2025-04-13 at 11 36 20 AM" src="https://github.com/user-attachments/assets/6b636975-9fe5-4aad-8c2f-c1955932ba10" />
-Once the game starts the timer counts down from 15. As letters are entered they become grayed out from the available letters. As valid words are entered time is added and the score goes up. 
-<img width="1512" alt="Screenshot 2025-04-13 at 11 37 12 AM" src="https://github.com/user-attachments/assets/12fb00c0-b8a8-425d-9565-337818b48ce2" />
-A popup appears upon completion, informing the user of the original 8 letter common word anagram. Their words and score are displayed as well as an 'Play Again' button. 
+# Letter Chase
+
+A fast-paced word game where players create words from scrambled letters. Test your vocabulary and quick thinking as you race against the clock!
+
+## Game Overview
+
+![Game in Progress](letterchasescreenshot.png)
+
+Letter Chase challenges players to create as many words as possible from a set of scrambled letters. Each word you create adds points to your score and extra time to the clock. The game features a competitive scoring system that compares your performance with other players.
+
+## Features
+
+- **Dynamic Word Formation**: Click letters or use keyboard to form words
+- **Real-time Scoring**: Points based on word length (length²)
+- **Time Management**: Each word adds time based on its length
+- **Competitive Rankings**: Compare your performance with other players
+- **Responsive Design**: Play on desktop or mobile devices
+- **Visual Feedback**: Animations for correct/incorrect words
+- **Word Validation**: Built-in dictionary to ensure valid words
+- **Score Tracking**: Persistent score storage with Supabase
+
+## Scoring System
+
+![Game Over Popup](popupscreenshot.png)
+
+The scoring system is based on two main factors:
+1. **Word Length**: Points = length² (e.g., a 4-letter word = 16 points)
+2. **Time Bonus**: Each word adds seconds equal to its length
+
+### Percentile Rankings
+- First to play a word: "You were the first to play this word!"
+- Highest score: "You got the highest score for this word!"
+- Other scores: "You scored higher than X% of players for this word"
+
+## How to Play
+
+1. **Start the Game**
+   - Click the "Start" button or press Enter
+   - You'll see a set of scrambled letters
+
+2. **Form Words**
+   - Click letters or use keyboard to form words
+   - Press Enter to submit a word
+   - Press Backspace to remove the last letter
+
+3. **Score Points**
+   - Create longer words for more points
+   - Each word adds time to the clock
+   - Avoid duplicate words
+
+4. **Game Over**
+   - Game ends when the timer reaches zero
+   - View your final score and percentile ranking
+   - See all words you created, sorted by length
+
+## 🛠️ Technical Details
+
+### Frontend
+- HTML5, CSS3, JavaScript
+- Responsive design for all devices
+- Smooth animations and transitions
+
+### Backend
+- Supabase for score storage and retrieval
+- Real-time percentile calculations
+- Secure API endpoints
+
+### Word Validation
+- Built-in dictionary for word verification
+- Efficient binary search algorithm
+- Anagram validation
+
