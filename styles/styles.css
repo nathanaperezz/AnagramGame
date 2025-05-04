@@ -371,4 +371,33 @@ button:active {
     transform: translateY(0);
 }
 
+.used-words-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.used-words-container h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+#usedWordsList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#usedWordsList li {
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    color: #2c3e50;
+}
+
 

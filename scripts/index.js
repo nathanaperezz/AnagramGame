@@ -186,6 +186,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (countdownElement) {
             countdownElement.textContent = time;
         }
+        
+        // Update used words list
+        const usedWordsList = document.getElementById("usedWordsList");
+        if (usedWordsList) {
+            usedWordsList.innerHTML = '';
+            usedWords.forEach(word => {
+                const li = document.createElement('li');
+                li.textContent = word;
+                usedWordsList.appendChild(li);
+            });
+        }
     }
 
     async function restartGame() {
@@ -310,7 +321,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!word || word.trim().length === 0) return false;
         if (!dictionary || dictionary.length === 0) return false;
         if (usedWords.includes(word)) {
-            showMessage("You've already used this word!", true);
+            // Find and highlight the duplicate word in the list
+            const usedWordsList = document.getElementById("usedWordsList");
+            if (usedWordsList) {
+                const wordElements = usedWordsList.getElementsByTagName('li');
+                for (let element of wordElements) {
+                    if (element.textContent === word) {
+                        element.style.color = '#ff4444';
+                        setTimeout(() => {
+                            element.style.color = '#2c3e50';
+                        }, 1000);
+                        break;
+                    }
+                }
+            }
             return false;
         }
         if (!IsAnagram(word, letters)) return false;
