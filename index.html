@@ -5,6 +5,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Letter Chase</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+
     <script>
         // Set base URL based on environment
         window.baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -74,6 +77,7 @@
             <div class="unscrambled-word">Original Word: <span id="unscrambledWord"></span></div>
             <div class="final-score">Final Score: <span id="finalScore">0</span></div>
             <div class="words-found">Words Found: <span id="finalWords">0</span></div>
+            <div class="percentile" id="percentileContainer">You scored higher than <span id="percentile">0</span>% of players for this word</div>
             <div class="words-list">
                 <h3>Your Words:</h3>
                 <ul id="finalWordsList"></ul>

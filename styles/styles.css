@@ -267,7 +267,7 @@ button:active {
     font-size: 2em;
 }
 
-.final-score, .words-found {
+.final-score, .words-found, .percentile {
     font-size: 1.5em;
     color: #2c3e50;
     margin-bottom: 1rem;

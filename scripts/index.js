@@ -1,5 +1,24 @@
 //Nathan Perez
 
+let supabase;
+try {
+    const supabaseUrl = 'https://iarmwswcokkibxgaeyac.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlhcm13c3djb2traWJ4Z2FleWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzOTI2MTIsImV4cCI6MjA2MTk2ODYxMn0.h33rzjVPsky40J_cYeTVpQkl69mkv_r5tsZMJH8gdlE';
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('Supabase initialized successfully');
+} catch (error) {
+    console.error('Failed to initialize Supabase:', error);
+    // Create a mock supabase object to prevent errors
+    supabase = {
+        from: () => ({
+            insert: async () => ({ data: null, error: null }),
+            select: () => ({
+                eq: async () => ({ data: [], error: null })
+            })
+        })
+    };
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Game state variables
     let time = 15;
@@ -291,6 +310,103 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    async function submitScore(unscrambledWord, finalScore) {
+        try {
+            console.log('Attempting to submit score:', { word: unscrambledWord, score: finalScore });
+            
+            const { data, error } = await supabase
+                .from('scores')
+                .insert([
+                    { 
+                        word: unscrambledWord, 
+                        score: finalScore,
+                        created_at: new Date().toISOString()
+                    }
+                ])
+                .select();
+    
+            if (error) {
+                console.error('Error saving score:', error);
+                showMessage('Failed to save score', true);
+            } else {
+                console.log('Score saved successfully:', data);
+                showMessage('Score saved!', false);
+            }
+        } catch (error) {
+            console.error('Exception while saving score:', error);
+            showMessage('Failed to save score', true);
+        }
+    }    
+
+    async function fetchScores(unscrambledWord) {
+        const { data, error } = await supabase
+            .from('scores')
+            .select('score')
+            .eq('word', unscrambledWord);  // filter by word/level
+        
+        if (error) {
+            console.error('Error fetching scores:', error);
+        } else {
+            console.log('Scores for', unscrambledWord, data);
+            // You can now calculate how the current score compares to these
+        }
+    }
+
+    async function calculatePercentile(unscrambledWord, finalScore) {
+        try {
+            console.log('Calculating percentile for:', { word: unscrambledWord, score: finalScore });
+            
+            const { data, error } = await supabase
+                .from('scores')
+                .select('score')
+                .eq('word', unscrambledWord);
+        
+            if (error) {
+                console.error('Error fetching scores:', error);
+                return;
+            }
+            
+            const percentileContainer = document.getElementById('percentileContainer');
+            if (!percentileContainer) return;
+
+            // Filter out our current score for comparison
+            const otherScores = data.filter(entry => entry.score !== finalScore);
+            
+            // If there are no other scores (excluding our current one), this is the first score
+            if (otherScores.length === 0) {
+                console.log('First time playing this word');
+                percentileContainer.textContent = 'You were the first to play this word!';
+                return;
+            }
+
+            console.log('Retrieved scores:', data);
+            const worseScores = otherScores.filter(entry => entry.score < finalScore);
+            
+            // Check if this is the highest score
+            if (worseScores.length === otherScores.length) {
+                percentileContainer.textContent = 'You got the highest score for this word!';
+                return;
+            }
+
+            const percentile = Math.round((worseScores.length / otherScores.length) * 100);
+
+            console.log('Percentile calculation:', {
+                totalScores: otherScores.length,
+                worseScores: worseScores.length,
+                percentile: percentile
+            });
+
+            percentileContainer.innerHTML = `You scored higher than <span id="percentile">${percentile}</span>% of players for this word`;
+        } catch (error) {
+            console.error('Exception while calculating percentile:', error);
+            const percentileContainer = document.getElementById('percentileContainer');
+            if (percentileContainer) {
+                percentileContainer.textContent = 'Error calculating percentile';
+            }
+        }
+    }
+    
+
     async function restartGame() {
         // Hide popup
         document.getElementById("gameOverPopup").style.display = 'none';
@@ -316,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
         startGame();
     }
 
-    function handleGameOver() {
+    async function handleGameOver() {
         gameOver = true;
         clearInterval(countdownInterval);
         wordFormation.disabled = true;
@@ -347,8 +463,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 li.textContent = word;
                 finalWordsList.appendChild(li);
             });
+
+            // Submit score and calculate percentile before showing popup
+            await submitScore(originalWord, score);
+            await calculatePercentile(originalWord, score);
             
-            // Show popup
+            // Show popup after calculations are done
             popup.style.display = 'flex';
             
             // Add play again button handler
