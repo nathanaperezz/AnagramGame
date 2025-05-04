@@ -68,43 +68,26 @@ body {
     border: 2px solid #e9ecef;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    user-select: none;
+}
+
+#availableLetters span:hover {
+    transform: translateY(-2px);
+    background-color: #e9ecef;
 }
 
 #availableLetters span.used {
     background-color: #e9ecef;
     border-color: #dee2e6;
-    color: #adb5bd;
+    color: #e9ecef;  /* Match background color to make text invisible */
     cursor: not-allowed;
+    transform: none;
 }
 
 #userInput {
-    font-size: 1.5em;
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: 3px solid #e0e0e0;
-    outline: none;
-    width: 300px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    background-color: white;
-    font-family: monospace;
-    letter-spacing: 1px;
-    text-align: center;
-    color: #2c3e50;
-}
-
-#userInput::placeholder {
-    color: #95a5a6;
-    opacity: 0.7;
-}
-
-#userInput:focus {
-    border-color: #3498db;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
-
-#userInput:focus::placeholder {
-    opacity: 1;
+    display: none;
 }
 
 /* Shake animation keyframes */
@@ -398,6 +381,58 @@ button:active {
     border-radius: 4px;
     border: 1px solid #e9ecef;
     color: #2c3e50;
+}
+
+.word-formation {
+    min-height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 20px 0;
+    padding: 10px;
+}
+
+.word-formation span {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 2em;
+    font-weight: bold;
+    color: #2c3e50;
+    animation: letterAppear 0.3s ease;
+}
+
+@keyframes letterAppear {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes letterRemove {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+}
+
+.letter-removing {
+    animation: letterRemove 0.15s ease forwards;
 }
 
 

@@ -13,11 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let letters = [];
     let isDictionaryLoaded = false;
     let originalWord = '';
+    let currentWord = '';
 
     // Get DOM elements
     const countdownElement = document.getElementById('countdown');
     const startButton = document.getElementById('startButton');
-    const userInput = document.getElementById('userInput');
+    const wordFormation = document.getElementById('wordFormation');
     const availableLetters = document.getElementById('availableLetters');
 
     if (!countdownElement) {
@@ -53,40 +54,131 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Hide start button and show game elements
         startButton.classList.add('hidden');
-        userInput.classList.remove('hidden');
+        wordFormation.classList.remove('hidden');
         availableLetters.classList.remove('hidden');
         
-        // Show letters
+        // Show letters and make them clickable
         availableLetters.innerHTML = getAvailableLetters(letters);
+        makeLettersClickable();
         
         // Start timer
         countdownInterval = setInterval(updateCountdown, 1000);
         timerStarted = true;
-        
-        // Enable input field
-        userInput.disabled = false;
-        userInput.focus();
     }
 
-    // Add global keyboard event listener for Enter key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            // If game hasn't started and start button is visible
-            if (!timerStarted && !startButton.classList.contains('hidden')) {
-                startGame();
-            }
-            // If game is over and popup is visible
-            else if (gameOver && document.getElementById("gameOverPopup").style.display === 'flex') {
-                const playAgainBtn = document.getElementById("playAgainBtn");
-                if (playAgainBtn) {
-                    restartGame();
+    function makeLettersClickable() {
+        const letterSpans = document.querySelectorAll('#availableLetters span');
+        letterSpans.forEach(span => {
+            span.addEventListener('click', () => {
+                if (!span.classList.contains('used')) {
+                    addLetterToWord(span.textContent);
+                    span.classList.add('used');
+                }
+            });
+        });
+
+        // Add keyboard support
+        document.addEventListener('keydown', handleKeyPress);
+    }
+
+    function handleKeyPress(event) {
+        if (!timerStarted || gameOver) return;
+        
+        const key = event.key.toLowerCase();
+        if (key === 'enter') {
+            submitWord();
+        } else if (key === 'backspace') {
+            removeLastLetter();
+        } else if (/^[a-z]$/.test(key)) {
+            const letterSpans = document.querySelectorAll('#availableLetters span');
+            for (let span of letterSpans) {
+                if (span.textContent === key && !span.classList.contains('used')) {
+                    addLetterToWord(key);
+                    span.classList.add('used');
+                    break;
                 }
             }
         }
-    });
+    }
 
-    // Add start button click handler
-    startButton.addEventListener('click', startGame);
+    function addLetterToWord(letter) {
+        currentWord += letter;
+        const letterSpan = document.createElement('span');
+        letterSpan.textContent = letter;
+        wordFormation.appendChild(letterSpan);
+    }
+
+    function removeLastLetter() {
+        if (currentWord.length > 0) {
+            currentWord = currentWord.slice(0, -1);
+            const lastLetter = wordFormation.lastChild;
+            if (lastLetter) {
+                lastLetter.classList.add('letter-removing');
+                setTimeout(() => {
+                    wordFormation.removeChild(lastLetter);
+                }, 100);
+            }
+            
+            // Find and unmark the letter in available letters
+            const letterSpans = document.querySelectorAll('#availableLetters span');
+            for (let span of letterSpans) {
+                if (span.textContent === lastLetter.textContent && span.classList.contains('used')) {
+                    span.classList.remove('used');
+                    break;
+                }
+            }
+        }
+    }
+
+    function submitWord() {
+        if (!isDictionaryLoaded) {
+            alert("Please wait for the dictionary to load.");
+            return;
+        }
+
+        if (currentWord === "") {
+            wordFormation.classList.add('shake');
+            setTimeout(() => {
+                wordFormation.classList.remove('shake');
+            }, 1000);
+            return;
+        }
+
+        if (IsValid(currentWord, letters, dictionary)) {
+            usedWords.push(currentWord);
+            numWords++;
+
+            // scoring logic
+            let length = currentWord.length;
+            let points = length * length;
+            score += points;
+            time += length;
+            updateUI();
+
+            // Make timer green when time is added
+            if (countdownElement) {
+                countdownElement.style.color = '#008000';
+                setTimeout(() => {
+                    countdownElement.style.color = '#2c3e50';
+                }, 1000);
+            }
+        } else {
+            wordFormation.classList.add('shake');
+            setTimeout(() => {
+                wordFormation.classList.remove('shake');
+            }, 1000);
+        }
+
+        // Reset word formation
+        currentWord = '';
+        wordFormation.innerHTML = '';
+        
+        // Reset all letter boxes to unused state
+        const letterSpans = document.querySelectorAll('#availableLetters span');
+        letterSpans.forEach(span => {
+            span.classList.remove('used');
+        });
+    }
 
     async function loadDictionary() {
         try {
@@ -212,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
         numWords = 0;
         
         // Clear input box
-        userInput.value = '';
+        wordFormation.innerHTML = '';
         
         // Update UI immediately
         updateUI();
@@ -227,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleGameOver() {
         gameOver = true;
         clearInterval(countdownInterval);
-        userInput.disabled = true;
+        wordFormation.disabled = true;
         
         // Show game over popup
         const popup = document.getElementById("gameOverPopup");
@@ -342,82 +434,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    // Event Listeners
-    userInput.addEventListener('input', function(event) {
-        const input = event.target.value.toLowerCase();
-        const letterSpans = document.querySelectorAll('#availableLetters span');
-        
-        // Reset all letters to unused state
-        letterSpans.forEach(span => {
-            span.classList.remove('used');
-        });
-        
-        // Mark used letters
-        for (let char of input) {
-            for (let span of letterSpans) {
-                if (span.textContent === char && !span.classList.contains('used')) {
-                    span.classList.add('used');
-                    break;
-                }
+    // Add global keyboard event listener for Enter key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            // If game hasn't started and start button is visible
+            if (!timerStarted && !startButton.classList.contains('hidden')) {
+                startGame();
             }
         }
     });
 
-    userInput.addEventListener('keydown', async function(event) {
-        if (event.key === "Enter") {
-            if (!isDictionaryLoaded) {
-                alert("Please wait for the dictionary to load.");
-                return;
-            }
-
-            let input = userInput.value.trim().toLowerCase();
-            if (input === "") {
-                userInput.style.border = '2px solid red';
-                userInput.classList.add('shake');
-                setTimeout(() => {
-                    userInput.style.border = '1px solid #ccc';
-                    userInput.classList.remove('shake');
-                }, 1000);
-                return;
-            }
-
-            if (IsValid(input, letters, dictionary)) {
-                userInput.style.border = '2px solid green';
-                usedWords.push(input);
-                numWords++;
-
-                // scoring logic
-                let length = input.length;
-                let points = length * length;
-                score += points;
-                time += length;
-                updateUI();
-
-                // Make timer green when time is added
-                if (countdownElement) {
-                    countdownElement.style.color = '#008000';
-                    setTimeout(() => {
-                        countdownElement.style.color = '#2c3e50';
-                    }, 1000);
-                }
-            } else {
-                userInput.style.border = '2px solid red';
-                userInput.classList.add('shake');
-                setTimeout(() => {
-                    userInput.style.border = '1px solid #ccc';
-                    userInput.classList.remove('shake');
-                }, 1000);
-            }
-
-            // Reset all letter boxes to unused state
-            const letterSpans = document.querySelectorAll('#availableLetters span');
-            letterSpans.forEach(span => {
-                span.classList.remove('used');
-            });
-
-            userInput.value = '';
-        }
-    });
+    // Add start button click handler
+    startButton.addEventListener('click', startGame);
 
     // Initialize the game
     initializeGame();
