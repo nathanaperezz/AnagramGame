@@ -31,58 +31,67 @@
     </script>
 </head>
 <body>
-    <h1 class="game-title">Letter Chase</h1>
 
-    <div class="score-container">
-        <div id="score">Score: 0</div>
-        <div class="how-to-play-container">
-            <button class="how-to-play-btn">How to Play</button>
-            <div class="tooltip">
-                <h3>Game Rules:</h3>
-                <ul>
-                    <li>Use the scrambled letters to form valid words</li>
-                    <li>Each word's points = length × length (e.g., "cat" = 9 points)</li>
-                    <li>Each word adds time equal to its length (e.g., "cat" = +3 seconds)</li>
-                    <li>Words must be in the dictionary</li>
-                    <li>Each word can only be used once</li>
-                    <li>Game ends when timer reaches zero</li>
-                </ul>
+    <!-- Mobile message (hidden by default) -->
+    <div id="mobile-message" style="display: none; text-align: center; padding: 20px; background: #f8d7da; color: #721c24;">
+        This site isn't ready for mobile yet. Please visit on a desktop!
+    </div>
+
+    <!-- Main site content -->
+    <div id="main-content">
+        <h1 class="game-title">Letter Chase</h1>
+
+        <div class="score-container">
+            <div id="score">Score: 0</div>
+            <div class="how-to-play-container">
+                <button class="how-to-play-btn">How to Play</button>
+                <div class="tooltip">
+                    <h3>Game Rules:</h3>
+                    <ul>
+                        <li>Use the scrambled letters to form valid words</li>
+                        <li>Each word's points = length × length (e.g., "cat" = 9 points)</li>
+                        <li>Each word adds time equal to its length (e.g., "cat" = +3 seconds)</li>
+                        <li>Words must be in the dictionary</li>
+                        <li>Each word can only be used once</li>
+                        <li>Game ends when timer reaches zero</li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="countdown">15</div>
+        <div id="countdown">15</div>
 
-    <h3 id="availableLetters" class="hidden">Letters</h3>
+        <h3 id="availableLetters" class="hidden">Letters</h3>
 
-    <div class="container">
-        <button id="startButton" class="start-button">Start Game</button>
-        <div id="wordFormation" class="word-formation hidden"></div>
-    </div>
+        <div class="container">
+            <button id="startButton" class="start-button">Start Game</button>
+            <div id="wordFormation" class="word-formation hidden"></div>
+        </div>
 
-    <div id="message" class="message"></div>
-    <div id="gameControls" class="game-controls"></div>
+        <div id="message" class="message"></div>
+        <div id="gameControls" class="game-controls"></div>
 
-    <div class="used-words-container">
-        <h3>Words Used:</h3>
-        <ul id="usedWordsList"></ul>
-    </div>
+        <div class="used-words-container">
+            <h3>Words Used:</h3>
+            <ul id="usedWordsList"></ul>
+        </div>
 
-    <p id="endScore"></p>
+        <p id="endScore"></p>
 
-    <!-- Game Over Popup -->
-    <div id="gameOverPopup" class="popup">
-        <div class="popup-content">
-            <h2>Game Over!</h2>
-            <div class="unscrambled-word">Original Word: <span id="unscrambledWord"></span></div>
-            <div class="final-score">Final Score: <span id="finalScore">0</span></div>
-            <div class="words-found">Words Found: <span id="finalWords">0</span></div>
-            <div class="percentile" id="percentileContainer">You scored higher than <span id="percentile">0</span>% of players for this word</div>
-            <div class="words-list">
-                <h3>Your Words:</h3>
-                <ul id="finalWordsList"></ul>
+        <!-- Game Over Popup -->
+        <div id="gameOverPopup" class="popup">
+            <div class="popup-content">
+                <h2>Game Over!</h2>
+                <div class="unscrambled-word">Original Word: <span id="unscrambledWord"></span></div>
+                <div class="final-score">Final Score: <span id="finalScore">0</span></div>
+                <div class="words-found">Words Found: <span id="finalWords">0</span></div>
+                <div class="percentile" id="percentileContainer">You scored higher than <span id="percentile">0</span>% of players for this word</div>
+                <div class="words-list">
+                    <h3>Your Words:</h3>
+                    <ul id="finalWordsList"></ul>
+                </div>
+                <button id="playAgainBtn" class="play-again-btn">Play Again</button>
             </div>
-            <button id="playAgainBtn" class="play-again-btn">Play Again</button>
         </div>
     </div>
 

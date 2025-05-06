@@ -20,6 +20,17 @@ try {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    //hide on mobile
+    function isMobile() {
+        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    if (isMobile()) {
+        document.getElementById('mobile-message').style.display = 'block';
+        document.getElementById('main-content').style.display = 'none';
+        return;  //Stop the rest of the game logic from running on mobile
+    }
+
     // Game state variables
     let time = 15;
     let timerStarted = false;
