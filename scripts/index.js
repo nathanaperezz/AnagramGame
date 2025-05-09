@@ -149,9 +149,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 100);
             }
             
-            // Find and unmark the letter in available letters
+            // Find and unmark the last matching letter in available letters
             const letterSpans = document.querySelectorAll('#availableLetters span');
-            for (let span of letterSpans) {
+            for (let i = letterSpans.length - 1; i >= 0; i--) {
+                const span = letterSpans[i];
                 if (span.textContent === lastLetter.textContent && span.classList.contains('used')) {
                     span.classList.remove('used');
                     break;
@@ -159,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    
 
     function submitWord() {
         if (!isDictionaryLoaded) {
@@ -429,9 +431,13 @@ document.addEventListener('DOMContentLoaded', function() {
         usedWords = [];
         score = 0;
         numWords = 0;
+        currentWord = '';  // Reset current word
         
-        // Clear input box
+        // Clear input box and word formation area
         wordFormation.innerHTML = '';
+        
+        // Clear available letters area
+        availableLetters.innerHTML = '';
         
         // Update UI immediately
         updateUI();
