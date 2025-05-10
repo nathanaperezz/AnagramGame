@@ -13,9 +13,10 @@ body {
 
 .container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-    height: 30vh;
+    min-height: 200px;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
@@ -84,24 +85,6 @@ body {
     color: #e9ecef;  /* Match background color to make text invisible */
     cursor: not-allowed;
     transform: none;
-}
-
-#userInput {
-    display: none;
-}
-
-/* Shake animation keyframes */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
-}
-
-.shake {
-    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-    border-color: #e74c3c;
-    background-color: #fff5f5;
-    transform: none !important;
 }
 
 .message {
@@ -384,13 +367,16 @@ button:active {
 }
 
 .word-formation {
-    min-height: 50px;
+    min-height: 70px;
+    max-height: 70px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 5px;
     margin: 20px 0;
     padding: 10px;
+    overflow-x: auto;
+    width: 100%;
 }
 
 .word-formation span {
@@ -433,6 +419,30 @@ button:active {
 
 .letter-removing {
     animation: letterRemove 0.15s ease forwards;
+}
+
+.enter-button {
+    margin-top: 20px;
+    padding: 8px 20px;
+    font-size: 16px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.enter-button:hover {
+    background-color: #34495e;
+}
+
+.enter-button:active {
+    background-color: #1a252f;
+}
+
+.enter-button.hidden {
+    display: none;
 }
 
 

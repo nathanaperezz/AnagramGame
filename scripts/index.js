@@ -20,17 +20,6 @@ try {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    //hide on mobile
-    function isMobile() {
-        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-
-    if (isMobile()) {
-        document.getElementById('mobile-message').style.display = 'block';
-        document.getElementById('main-content').style.display = 'none';
-        return;  //Stop the rest of the game logic from running on mobile
-    }
-
     // Game state variables
     let time = 15;
     let timerStarted = false;
@@ -86,10 +75,14 @@ document.addEventListener('DOMContentLoaded', function() {
         startButton.classList.add('hidden');
         wordFormation.classList.remove('hidden');
         availableLetters.classList.remove('hidden');
+        document.getElementById('enterButton').classList.remove('hidden');
         
         // Show letters and make them clickable
         availableLetters.innerHTML = getAvailableLetters(letters);
         makeLettersClickable();
+        
+        // Add click handler for Enter button
+        document.getElementById('enterButton').onclick = submitWord;
         
         // Start timer
         countdownInterval = setInterval(updateCountdown, 1000);
@@ -135,6 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
         currentWord += letter;
         const letterSpan = document.createElement('span');
         letterSpan.textContent = letter;
+        letterSpan.style.cursor = 'pointer';
+        letterSpan.onclick = removeLastLetter;
         wordFormation.appendChild(letterSpan);
     }
 
@@ -169,10 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (currentWord === "") {
-            wordFormation.classList.add('shake');
-            setTimeout(() => {
-                wordFormation.classList.remove('shake');
-            }, 1000);
             return;
         }
 
@@ -194,11 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     countdownElement.style.color = '#2c3e50';
                 }, 1000);
             }
-        } else {
-            wordFormation.classList.add('shake');
-            setTimeout(() => {
-                wordFormation.classList.remove('shake');
-            }, 1000);
         }
 
         // Reset word formation
@@ -439,6 +425,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear available letters area
         availableLetters.innerHTML = '';
         
+        // Hide Enter button
+        document.getElementById('enterButton').classList.add('hidden');
+        
         // Update UI immediately
         updateUI();
         
@@ -556,10 +545,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const wordElements = usedWordsList.getElementsByTagName('li');
                 for (let element of wordElements) {
                     if (element.textContent === word) {
-                        element.style.color = '#ff4444';
+                        element.style.backgroundColor = '#ff4444';
+                        element.style.color = '#f8f9fa';
                         setTimeout(() => {
+                            element.style.backgroundColor = '#f8f9fa';
                             element.style.color = '#2c3e50';
-                        }, 1000);
+                        }, 750);
                         break;
                     }
                 }
