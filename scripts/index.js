@@ -326,14 +326,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
             if (error) {
                 console.error('Error saving score:', error);
-                showMessage('Failed to save score', true);
             } else {
                 console.log('Score saved successfully:', data);
-                showMessage('Score saved!', false);
             }
         } catch (error) {
             console.error('Exception while saving score:', error);
-            showMessage('Failed to save score', true);
         }
     }    
 
