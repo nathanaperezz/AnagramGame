@@ -139,7 +139,8 @@ button:active {
 }
 
 .game-title {
-    font-family: 'Righteous', cursive;
+    /* font-family: 'Righteous', cursive; */
+    font-family: 'Jersey 25', sans-serif;
     font-size: 3.5em;
     color: #2c3e50;
     text-align: center;
