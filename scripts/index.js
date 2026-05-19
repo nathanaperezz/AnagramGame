@@ -200,9 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadDictionary() {
         try {
-            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                ? '' 
-                : '/AnagramGame';
+            const baseUrl = '';
             console.log('Attempting to load dictionary from:', `${baseUrl}/data/enable.txt`);
             const response = await fetch(`${baseUrl}/data/enable.txt`);
             if (!response.ok) {
@@ -221,9 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function generateScrambledAnagram(filePath) {
         try {
-            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                ? '' 
-                : '/AnagramGame';
+            const baseUrl = '';
             console.log('Attempting to load anagram words from:', `${baseUrl}/data/anagramWords.txt`);
             const response = await fetch(`${baseUrl}/data/anagramWords.txt`);
             if (!response.ok) {
